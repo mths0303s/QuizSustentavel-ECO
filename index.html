@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Quiz da Sustentabilidade</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+
+        .tabs {
+            display: flex;
+            background: white;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .tab {
+            flex: 1;
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .tab:hover {
+            background: #f5f5f5;
+        }
+
+        .tab.active {
+            border-bottom-color: #2ecc71;
+            color: #2ecc71;
+        }
+
+        .tab-content {
+            display: none;
+            background: white;
+            min-height: 70vh;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Learning Section */
+        .learning-content {
+            padding: 40px;
+        }
+
+        .topic {
+            margin-bottom: 40px;
+            padding: 25px;
+            background: #f8f9fa;
+            border-radius: 15px;
+            border-left: 5px solid #2ecc71;
+        }
+
+        .topic h2 {
+            color: #2ecc71;
+            margin-bottom: 15px;
+            font-size: 1.6em;
+        }
+
+        .topic h3 {
+            color: #27ae60;
+            margin: 20px 0 10px 0;
+            font-size: 1.2em;
+        }
+
+        .topic p {
+            line-height: 1.8;
+            color: #555;
+            margin-bottom: 12px;
+        }
+
+        .topic ul {
+            margin-left: 20px;
+            color: #555;
+        }
+
+        .topic li {
+            margin-bottom: 8px;
+            line-height: 1.6;
+        }
+
+        /* Quiz Section */
+        .quiz-content {
+            padding: 40px;
+            position: relative;
+        }
+
+        .quiz-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 10px;
+        }
+
+        .progress-info {
+            font-size: 1.1em;
+            color: #666;
+        }
+
+        .timer {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #e74c3c;
+            padding: 10px 20px;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .timer.warning {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .question-container {
+            min-height: 400px;
+            position: relative;
+        }
+
+        .question-card {
+            position: absolute;
+            width: 100%;
+            background: #f8f9fa;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: all 0.5s;
+            opacity: 0;
+            transform: translateX(100px);
+        }
+
+        .question-card.active {
+            opacity: 1;
+            transform: translateX(0);
+            position: relative;
+        }
+
+        .question-card.exit {
+            opacity: 0;
+            transform: translateX(-100px);
+        }
+
+        .question-card h3 {
+            color: #333;
+            margin-bottom: 30px;
+            font-size: 1.4em;
+            line-height: 1.6;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .option {
+            background: white;
+            padding: 18px 25px;
+            border-radius: 10px;
+            border: 2px solid #ddd;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 1.05em;
+        }
+
+        .option:hover {
+            border-color: #2ecc71;
+            transform: translateX(5px);
+        }
+
+        .option.selected {
+            background: #2ecc71;
+            color: white;
+            border-color: #2ecc71;
+        }
+
+        .btn {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+            color: white;
+            border: none;
+            padding: 15px 40px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.3s;
+            margin-top: 30px;
+            font-weight: bold;
+        }
+
+        .btn:hover {
+            transform: scale(1.05);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Result Section */
+        .result-container {
+            text-align: center;
+            padding: 40px;
+        }
+
+        .result-score {
+            font-size: 5em;
+            font-weight: bold;
+            color: #2ecc71;
+            margin: 30px 0;
+        }
+
+        .result-grade {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 20px 0;
+            padding: 20px;
+            border-radius: 15px;
+        }
+
+        .grade-irregular { background: #e74c3c; color: white; }
+        .grade-regular { background: #f39c12; color: white; }
+        .grade-bom { background: #3498db; color: white; }
+        .grade-muito-bom { background: #2ecc71; color: white; }
+
+        .amazon-message {
+            font-size: 1.5em;
+            color: #27ae60;
+            margin: 30px 0;
+            padding: 25px;
+            background: #d4edda;
+            border-radius: 15px;
+            border: 2px solid #2ecc71;
+        }
+
+        .start-screen {
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .start-screen h2 {
+            color: #2ecc71;
+            font-size: 2em;
+            margin-bottom: 20px;
+        }
+
+        .start-screen p {
+            font-size: 1.2em;
+            color: #666;
+            margin-bottom: 15px;
+        }
+
+        .start-screen .btn {
+            margin-top: 40px;
+            font-size: 1.3em;
+            padding: 20px 60px;
+        }
+
+        /* Leaderboard */
+        .leaderboard {
+            padding: 40px;
+        }
+
+        .leaderboard h2 {
+            color: #2ecc71;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2em;
+        }
+
+        .leaderboard-list {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 20px;
+        }
+
+        .leaderboard-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+        }
+
+        .leaderboard-item.top {
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            font-weight: bold;
+        }
+
+        .leaderboard-rank {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #2ecc71;
+            min-width: 40px;
+        }
+
+        .leaderboard-name {
+            flex: 1;
+            font-size: 1.1em;
+            color: #333;
+        }
+
+        .leaderboard-score {
+            font-size: 1.2em;
+            font-weight: bold;
+            color: #666;
+        }
+
+        .no-scores {
+            text-align: center;
+            color: #999;
+            padding: 40px;
+            font-size: 1.1em;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🌍 Quiz da Sustentabilidade</h1>
+            <p>Aprenda e teste seus conhecimentos sobre o meio ambiente!</p>
+        </div>
+
+        <div class="tabs">
+            <div class="tab active" onclick="switchTab('learning')">📚 Aprenda</div>
+            <div class="tab" onclick="switchTab('quiz')">🎯 Teste seus Conhecimentos</div>
+            <div class="tab" onclick="switchTab('leaderboard')">🏆 Ranking</div>
+        </div>
+
+        <!-- Learning Tab -->
+        <div class="tab-content active" id="learning">
+            <div class="learning-content">
+                <div class="topic">
+                    <h2>♻️ Reciclagem e Gestão de Resíduos</h2>
+                    <p>A reciclagem é um dos pilares fundamentais da sustentabilidade. Ao reciclar, reduzimos a extração de recursos naturais, economizamos energia e diminuímos a poluição.</p>
+                    
+                    <h3>Tempo de Decomposição</h3>
+                    <ul>
+                        <li><strong>Garrafa plástica:</strong> 450 anos</li>
+                        <li><strong>Lata de alumínio:</strong> 200 a 500 anos</li>
+                        <li><strong>Vidro:</strong> 4.000 anos ou mais</li>
+                        <li><strong>Papel:</strong> 3 a 6 meses</li>
+                    </ul>
+                    
+                    <h3>Compostagem</h3>
+                    <p>A compostagem transforma resíduos orgânicos em adubo natural rico em nutrientes. Cerca de 50% do lixo doméstico pode ser compostado, reduzindo significativamente o volume de resíduos enviados aos aterros.</p>
+                </div>
+
+                <div class="topic">
+                    <h2>💧 Conservação da Água</h2>
+                    <p>Apenas 3% da água do planeta é doce, e menos de 1% está disponível para consumo humano. A conservação da água é essencial para garantir o futuro.</p>
+                    
+                    <h3>Dicas para Economizar Água</h3>
+                    <ul>
+                        <li>Fechar a torneira ao escovar os dentes pode economizar até 12 litros por escovação</li>
+                        <li>Um vazamento de uma gota por segundo desperdiça mais de 40 litros por dia</li>
+                        <li>Banhos de 5 minutos consomem cerca de 45 litros de água</li>
+                        <li>Reutilizar água da chuva pode economizar até 50% do consumo doméstico</li>
+                    </ul>
+                </div>
+
+                <div class="topic">
+                    <h2>🌳 Florestas e Biodiversidade</h2>
+                    <p>As florestas cobrem 31% da superfície terrestre e abrigam 80% da biodiversidade do planeta. Elas são essenciais para o equilíbrio climático e a vida na Terra.</p>
+                    
+                    <h3>A Amazônia</h3>
+                    <p>A Floresta Amazônica é o maior bioma tropical do mundo, produzindo 20% do oxigênio da Terra e abrigando 10% de todas as espécies do planeta. O desmatamento da Amazônia contribui significativamente para as mudanças climáticas.</p>
+                    
+                    <h3>Benefícios das Árvores</h3>
+                    <ul>
+                        <li>Uma árvore absorve até 22 kg de CO₂ por ano</li>
+                        <li>Árvores reduzem a temperatura urbana em até 5°C</li>
+                        <li>Aumentam a umidade do ar e filtram poluentes</li>
+                    </ul>
+                </div>
+
+                <div class="topic">
+                    <h2>🔥 Mudanças Climáticas</h2>
+                    <p>O aquecimento global é causado principalmente pela emissão de gases de efeito estufa, especialmente o CO₂ proveniente da queima de combustíveis fósseis.</p>
+                    
+                    <h3>Principais Gases do Efeito Estufa</h3>
+                    <ul>
+                        <li><strong>Dióxido de carbono (CO₂):</strong> Principal vilão, liberado pela queima de combustíveis</li>
+                        <li><strong>Metano (CH₄):</strong> Produzido pela pecuária e decomposição de lixo</li>
+                        <li><strong>Óxido nitroso (N₂O):</strong> Proveniente de fertilizantes agrícolas</li>
+                    </ul>
+                </div>
+
+                <div class="topic">
+                    <h2>⚡ Energias Renováveis</h2>
+                    <p>A transição para fontes de energia limpa é crucial para combater as mudanças climáticas e garantir um futuro sustentável.</p>
+                    
+                    <h3>Principais Fontes Renováveis</h3>
+                    <ul>
+                        <li><strong>Solar:</strong> Converte luz do sol em eletricidade, sem emissões</li>
+                        <li><strong>Eólica:</strong> Usa a força dos ventos, totalmente limpa</li>
+                        <li><strong>Hidrelétrica:</strong> Aproveita a força da água</li>
+                        <li><strong>Biomassa:</strong> Transforma resíduos orgânicos em energia</li>
+                    </ul>
+                    
+                    <p>As energias renováveis são inesgotáveis e não poluem, ao contrário dos combustíveis fósseis (carvão, petróleo, gás natural).</p>
+                </div>
+
+                <div class="topic">
+                    <h2>🌊 Oceanos e Vida Marinha</h2>
+                    <p>Os oceanos cobrem 71% da superfície da Terra e produzem mais de 50% do oxigênio que respiramos. Eles regulam o clima e abrigam milhões de espécies.</p>
+                    
+                    <h3>Ameaças aos Oceanos</h3>
+                    <ul>
+                        <li>8 milhões de toneladas de plástico chegam aos oceanos anualmente</li>
+                        <li>Microplásticos são encontrados em 90% dos peixes</li>
+                        <li>A acidificação dos oceanos ameaça recifes de coral</li>
+                        <li>A sobrepesca coloca em risco diversas espécies marinhas</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <!-- Quiz Tab -->
+        <div class="tab-content" id="quiz">
+            <div class="quiz-content">
+                <div class="start-screen" id="startScreen">
+                    <h2>🎯 Pronto para Testar seus Conhecimentos?</h2>
+                    <p>15 perguntas sobre sustentabilidade</p>
+                    <p>30 segundos para cada pergunta</p>
+                    <p>Vamos descobrir o quanto você pode salvar a Amazônia!</p>
+                    <button class="btn" onclick="startQuiz()">Iniciar Quiz</button>
+                </div>
+
+                <div id="quizGame" style="display: none;">
+                    <div class="quiz-header">
+                        <div class="progress-info">
+                            Pergunta <span id="currentQuestion">1</span> de 15
+                        </div>
+                        <div class="timer" id="timer">30</div>
+                    </div>
+
+                    <div class="question-container" id="questionContainer"></div>
+
+                    <button class="btn" id="nextBtn" onclick="nextQuestion()" style="display: none;">
+                        Próxima Pergunta →
+                    </button>
+                </div>
+
+                <div id="resultScreen" style="display: none;">
+                    <div class="result-container">
+                        <h2>Quiz Finalizado!</h2>
+                        <div class="result-score" id="finalScore"></div>
+                        <div class="result-grade" id="gradeDisplay"></div>
+                        <div class="amazon-message" id="amazonMessage"></div>
+                        <button class="btn" onclick="resetQuiz()">Fazer Novamente</button>
+                        <button class="btn" onclick="switchTab('leaderboard')" style="background: #3498db; margin-left: 10px;">Ver Ranking</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leaderboard Tab -->
+        <div class="tab-content" id="leaderboard">
+            <div class="leaderboard">
+                <h2>🏆 Ranking de Pontuações</h2>
+                <div class="leaderboard-list" id="leaderboardList">
+                    <div class="no-scores">Nenhuma pontuação registrada ainda. Seja o primeiro!</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const questions = [
+            {
+                question: "Quanto tempo leva para uma garrafa plástica se degradar na natureza?",
+                options: ["10 anos", "50 anos", "450 anos", "100 anos"],
+                correct: 2
+            },
+            {
+                question: "Qual destas ações economiza mais água por dia?",
+                options: ["Fechar a torneira ao escovar os dentes", "Tomar banhos mais curtos", "Consertar vazamentos", "Usar balde em vez de mangueira"],
+                correct: 2
+            },
+            {
+                question: "O que é compostagem?",
+                options: ["Queimar lixo orgânico", "Transformar restos orgânicos em adubo natural", "Separar plástico do vidro", "Plantar árvores"],
+                correct: 1
+            },
+            {
+                question: "Qual é o principal gás responsável pelo efeito estufa?",
+                options: ["Oxigênio", "Dióxido de carbono (CO₂)", "Nitrogênio", "Hidrogênio"],
+                correct: 1
+            },
+            {
+                question: "Qual alternativa NÃO é uma fonte de energia renovável?",
+                options: ["Solar", "Eólica", "Carvão", "Hidrelétrica"],
+                correct: 2
+            },
+            {
+                question: "Quantos milhões de toneladas de plástico chegam aos oceanos anualmente?",
+                options: ["2 milhões", "5 milhões", "8 milhões", "15 milhões"],
+                correct: 2
+            },
+            {
+                question: "Quanto oxigênio a Floresta Amazônica produz?",
+                options: ["10% do oxigênio da Terra", "20% do oxigênio da Terra", "30% do oxigênio da Terra", "50% do oxigênio da Terra"],
+                correct: 1
+            },
+            {
+                question: "Quantos kg de CO₂ uma árvore pode absorver por ano?",
+                options: ["5 kg", "10 kg", "22 kg", "50 kg"],
+                correct: 2
+            },
+            {
+                question: "Qual porcentagem da água do planeta é doce?",
+                options: ["3%", "10%", "25%", "50%"],
+                correct: 0
+            },
+            {
+                question: "Quanto lixo doméstico pode ser compostado?",
+                options: ["10%", "25%", "50%", "75%"],
+                correct: 2
+            },
+            {
+                question: "Quanto tempo uma lata de alumínio leva para se degradar?",
+                options: ["10 anos", "50 anos", "200 a 500 anos", "1000 anos"],
+                correct: 2
+            },
+            {
+                question: "Qual porcentagem da biodiversidade do planeta está nas florestas?",
+                options: ["40%", "60%", "80%", "90%"],
+                correct: 2
+            },
+            {
+                question: "Em quanto as árvores podem reduzir a temperatura urbana?",
+                options: ["1°C", "3°C", "5°C", "10°C"],
+                correct: 2
+            },
+            {
+                question: "Quanto da superfície terrestre é coberta por florestas?",
+                options: ["15%", "31%", "45%", "60%"],
+                correct: 1
+            },
+            {
+                question: "Quanto do consumo doméstico de água pode ser economizado com reutilização de água da chuva?",
+                options: ["10%", "25%", "50%", "75%"],
+                correct: 2
+            }
+        ];
+
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let timeLeft = 30;
+        let timerInterval;
+        let userAnswers = [];
+
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.classList.add('active');
+            document.getElementById(tabName).classList.add('active');
+            
+            if (tabName === 'leaderboard') {
+                loadLeaderboard();
+            }
+        }
+
+        function startQuiz() {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('quizGame').style.display = 'block';
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+            showQuestion();
+        }
+
+        function showQuestion() {
+            const container = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            
+            container.innerHTML = `
+                <div class="question-card active">
+                    <h3>${question.question}</h3>
+                    <div class="options">
+                        ${question.options.map((option, index) => `
+                            <div class="option" onclick="selectOption(${index})">${option}</div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+            
+            document.getElementById('currentQuestion').textContent = currentQuestionIndex + 1;
+            document.getElementById('nextBtn').style.display = 'none';
+            
+            startTimer();
+        }
+
+        function startTimer() {
+            timeLeft = 30;
+            document.getElementById('timer').textContent = timeLeft;
+            document.getElementById('timer').classList.remove('warning');
+            
+            clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                timeLeft--;
+                document.getElementById('timer').textContent = timeLeft;
+                
+                if (timeLeft <= 10) {
+                    document.getElementById('timer').classList.add('warning');
+                }
+                
+                if (timeLeft <= 0) {
+                    clearInterval(timerInterval);
+                    selectOption(-1); // Resposta não dada
+                }
+            }, 1000);
+        }
+
+        function selectOption(optionIndex) {
+            clearInterval(timerInterval);
+            
+            const options = document.querySelectorAll('.option');
+            options.forEach(opt => opt.style.pointerEvents = 'none');
+            
+            if (optionIndex >= 0) {
+                options[optionIndex].classList.add('selected');
+                if (optionIndex === questions[currentQuestionIndex].correct) {
+                    score++;
+                }
+            }
+            
+            userAnswers.push(optionIndex);
+            document.getElementById('nextBtn').style.display = 'block';
+        }
+
+        function nextQuestion() {
+            const card = document.querySelector('.question-card');
+            card.classList.remove('active');
+            card.classList.add('exit');
+            
+            setTimeout(() => {
+                currentQuestionIndex++;
+                
+                if (currentQuestionIndex < questions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            }, 500);
+        }
+
+        function showResults() {
+            document.getElementById('quizGame').style.display = 'none';
+            document.getElementById('resultScreen').style.display = 'block';
+            
+            const percentage = (score / questions.length) * 100;
+            document.getElementById('finalScore').textContent = `${score}/${questions.length}`;
+            
+            let grade, gradeClass, amazonPercentage;
+            
+            if (percentage < 40) {
+                grade = "Irregular";
+                gradeClass = "grade-irregular";
+                amazonPercentage = 10;
+            } else if (percentage < 60) {
+                grade = "Regular";
+                gradeClass = "grade-regular";
+                amazonPercentage = 30;
+            } else if (percentage < 80) {
+                grade = "Bom";
+                gradeClass = "grade-bom";
+                amazonPercentage = 60;
+            } else {
+                grade = "Muito Bom";
+                gradeClass = "grade-muito-bom";
+                amazonPercentage = 85;
+            }
+            
+            document.getElementById('gradeDisplay').textContent = grade;
+            document.getElementById('gradeDisplay').className = `result-grade ${gradeClass}`;
+            
+            document.getElementById('amazonMessage').textContent = 
+                `🌳 Parabéns! Com seus conhecimentos, você conseguiu salvar ${amazonPercentage}% da Amazônia! 🌳`;
+            
+            saveScore(score);
+        }
+
+        function resetQuiz() {
+            document.getElementById('resultScreen').style.display = 'none';
+            document.getElementById('startScreen').style.display = 'block';
+            currentQuestionIndex = 0;
+            score = 0;
+            userAnswers = [];
+        }
+
+        async function saveScore(finalScore) {
+            try {
+                const scores = await getScores();
+                const newScore = {
+                    score: finalScore,
+                    total: questions.length,
+                    percentage: ((finalScore / questions.length) * 100).toFixed(1),
+                    date: new Date().toISOString()
+                };
+                
+                scores.push(newScore);
+                scores.sort((a, b) => b.score - a.score);
+                
+                const top10 = scores.slice(0, 10);
+                await window.storage.set('quiz-leaderboard', JSON.stringify(top10), true);
+            } catch (error) {
+                console.log('Erro ao salvar pontuação:', error);
+            }
+        }
+
+        async function getScores() {
+            try {
+                const result = await window.storage.get('quiz-leaderboard', true);
+                return result ? JSON.parse(result.value) : [];
+            } catch (error) {
+                return [];
+            }
+        }
+
+        async function loadLeaderboard() {
+            const scores = await getScores();
+            const listContainer = document.getElementById('leaderboardList');
+            
+            if (scores.length === 0) {
+                listContainer.innerHTML = '<div class="no-scores">Nenhuma pontuação registrada ainda. Seja o primeiro!</div>';
+                return;
+            }
+            
+            listContainer.innerHTML = scores.map((score, index) => {
+                const date = new Date(score.date);
+                const dateStr = date.toLocaleDateString('pt-BR');
+                const topClass = index === 0 ? 'top' : '';
+                const medal = index === 0 ? '🥇' : index === 1 ? '🥈' : index === 2 ? '🥉' : '';
+                
+                return `
+                    <div class="leaderboard-item ${topClass}">
+                        <div class="leaderboard-rank">${medal || (index + 1)}</div>
+                        <div class="leaderboard-name">${dateStr}</div>
+                        <div class="leaderboard-score">${score.score}/${score.total} (${score.percentage}%)</div>
+                    </div>
+                `;
+            }).join('');
+        }
+    </script>
+</body>
+</html>
