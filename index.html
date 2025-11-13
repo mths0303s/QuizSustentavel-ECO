@@ -748,7 +748,7 @@
                 scores.sort((a, b) => b.score - a.score);
                 
                 const top10 = scores.slice(0, 10);
-                await window.storage.set('quiz-leaderboard', JSON.stringify(top10), true);
+                localStorage.setItem("quiz-leaderboard", JSON.stringify(top10));
             } catch (error) {
                 console.log('Erro ao salvar pontuação:', error);
             }
@@ -756,8 +756,11 @@
 
         async function getScores() {
             try {
-                const result = await window.storage.get('quiz-leaderboard', true);
-                return result ? JSON.parse(result.value) : [];
+                const result = localStorage.getItem("quiz-leaderboard");
+                if (!result) return [];
+
+                const parsed = JSON.parse(result);
+                return Array.isArray(parsed) ? parsed : [];
             } catch (error) {
                 return [];
             }
