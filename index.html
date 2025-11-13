@@ -597,7 +597,8 @@
             document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
             document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
             
-            event.target.classList.add('active');
+            const index = tabName === 'learning' ? 0 : tabName === 'quiz' ? 1 : 2;
+            document.querySelectorAll('.tab')[index].classList.add('active');
             document.getElementById(tabName).classList.add('active');
             
             if (tabName === 'leaderboard') {
@@ -652,12 +653,12 @@
                 if (timeLeft <= 0) {
                     clearInterval(timerInterval);
                     selectOption(-1); // Resposta não dada
+                    setTimeout(() => nextQuestion(), 500); // Avança automaticamente após 0.5s
                 }
             }, 1000);
         }
 
         function selectOption(optionIndex) {
-            clearInterval(timerInterval);
             
             const options = document.querySelectorAll('.option');
             options.forEach(opt => opt.style.pointerEvents = 'none');
